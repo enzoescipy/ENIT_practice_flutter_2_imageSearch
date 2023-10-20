@@ -18,7 +18,9 @@ void debugConsole(dynamic debugParams) {
     debugParams.forEach((element) {
       outputString += element.toString() + " , ";
     });
-    outputString = outputString.substring(0, outputString.length - 2);
+    if (outputString.length > 1) {
+      outputString = outputString.substring(0, outputString.length - 2);
+    }
   } else {
     outputString = debugParams.toString();
   }

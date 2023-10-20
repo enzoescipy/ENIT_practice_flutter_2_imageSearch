@@ -10,7 +10,6 @@ class KakaoAPI {
   late final size;
   int page = 0;
   bool isReachedEnd = false;
-
 }
 
 class KakaoWebAPI extends KakaoAPI {
@@ -44,6 +43,9 @@ class KakaoWebAPI extends KakaoAPI {
 
     return res.then((response) {
       var dataConvertedToJSON = json.decode(response.body);
+      if (dataConvertedToJSON == null || dataConvertedToJSON["documents"] == null) {
+        return null;
+      }
       final List convertedJSON = dataConvertedToJSON["documents"];
       // get the doc_text, and make the map object list
       List<Map<String, String>> correctedMapList = [];
@@ -95,6 +97,9 @@ class KakaoImageAPI extends KakaoAPI {
 
     return res.then((response) {
       var dataConvertedToJSON = json.decode(response.body);
+      if (dataConvertedToJSON == null || dataConvertedToJSON["documents"] == null) {
+        return null;
+      }
       final List convertedJSON = dataConvertedToJSON["documents"];
       // get the doc_text, and make the map object list
       List<Map<String, String>> correctedMapList = [];

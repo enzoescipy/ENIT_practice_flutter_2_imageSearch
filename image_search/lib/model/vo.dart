@@ -7,22 +7,35 @@ class VO {
 }
 
 class ImageVO extends VO {
-  DateTime dateTime;
+  late DateTime dateTime;
   String thumbnailURL;
   String imageURL;
   String name;
-  ImageVO(String url, this.dateTime, this.thumbnailURL, this.imageURL, this.name) {
+
+  ImageVO(String url, String dateTimeString, this.thumbnailURL, this.imageURL, this.name) {
     isImageVO = true;
+    dateTime = DateTime.parse(dateTimeString);
     this.url = url;
+  }
+
+  @override
+  String toString() {
+    return "$isImageVO, $likeOrder, $url, $dateTime, $thumbnailURL, $imageURL, $name";
   }
 }
 
 class WebVO extends VO {
-  DateTime dateTime;
+  late DateTime dateTime;
   String title;
   String contents;
-  WebVO(String url, this.dateTime, this.title, this.contents) {
+  WebVO(String url, String dateTimeString, this.title, this.contents) {
     isImageVO = false;
+    dateTime = DateTime.parse(dateTimeString);
     this.url = url;
+  }
+
+  @override
+  String toString() {
+    return "$isImageVO, $likeOrder, $url, $dateTime, $title, $contents";
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_search/package/debugConsole.dart';
 import 'package:image_search/package/kakao_api.dart';
 import 'package:image_search/model/vo.dart';
 import 'package:image_search/model/hive_controle.dart';
@@ -8,13 +9,21 @@ class GetVoFromKakao {
   bool isImageVO;
   KakaoAPI? kakaoAPI;
   final int size;
+
   GetVoFromKakao(this.REST_key, this.isImageVO, this.size);
 
+  /// return the list of VO from keyword, kakao api.
+  /// purposed for the first call
+  /// null for the,
+  ///   - repeated call deny
+  ///   - page reached its limitation
+  ///   - invalid response (mainly wrong password or option)
   Future<List?> searchFirst(String keyword) async {
     // if searchFirst already called, function should not be called.
     if (kakaoAPI != null) {
       return null;
     }
+
     // set the kakaoAPI instance
     if (isImageVO) {
       kakaoAPI = KakaoImageAPI(REST_key, keyword, size);
@@ -28,7 +37,8 @@ class GetVoFromKakao {
         }
         List<ImageVO> voList = [];
         mapList.forEach((map) {
-          var newVO = ImageVO(map["doc_url"]!, DateTime.parse(map["datetime"]!), map["thumbnail_url"]!, map["image_url"]!, map["name"]!);
+          // debugMap(map);
+          var newVO = ImageVO(map["doc_url"]!, map["datetime"]!, map["thumbnail_url"]!, map["image_url"]!, map["name"]!);
           voList.add(newVO);
         });
         return voList;
@@ -45,7 +55,7 @@ class GetVoFromKakao {
         }
         List<WebVO> voList = [];
         mapList.forEach((map) {
-          var newVO = WebVO(map["url"]!, DateTime.parse(map["datetime"]!), map["title"]!, map["contents"]!);
+          var newVO = WebVO(map["url"]!, map["datetime"]!, map["title"]!, map["contents"]!);
           voList.add(newVO);
         });
         return voList;
@@ -53,6 +63,12 @@ class GetVoFromKakao {
     }
   }
 
+  /// return the list of VO from keyword, kakao api.
+  /// purposed for the next calls.
+  /// null for the,
+  ///   - not called searchFirst() deny
+  ///   - page reached its limitation
+  ///   - invalid response (mainly wrong password or option)
   Future<List?> searchNext() async {
     // if searchFirst() ever called even once, return null.
     if (kakaoAPI == null) {
@@ -71,7 +87,7 @@ class GetVoFromKakao {
         }
         List<ImageVO> voList = [];
         mapList.forEach((map) {
-          var newVO = ImageVO(map["doc_url"]!, DateTime.parse(map["datetime"]!), map["thumbnail_url"]!, map["image_url"]!, map["name"]!);
+          var newVO = ImageVO(map["doc_url"]!, map["datetime"]!, map["thumbnail_url"]!, map["image_url"]!, map["name"]!);
           voList.add(newVO);
         });
         return voList;
@@ -87,7 +103,7 @@ class GetVoFromKakao {
         }
         List<WebVO> voList = [];
         mapList.forEach((map) {
-          var newVO = WebVO(map["url"]!, DateTime.parse(map["datetime"]!), map["title"]!, map["contents"]!);
+          var newVO = WebVO(map["url"]!, map["datetime"]!, map["title"]!, map["contents"]!);
           voList.add(newVO);
         });
         return voList;
@@ -98,12 +114,11 @@ class GetVoFromKakao {
 
 enum StagedType { insert, delete }
 
-class VOStageCommit {
+class VOStageCommitGet {
   /// this field's children are:
   /// [enum StagedType, VO vo]
   /// for the which vo to stage, and which action to perform.
   static List<List> stagedList = [];
-  static HIVEController hiveController = HIVEController();
 
   static void insertVO(dynamic vo) {
     // check if vo is imageVO or WebVO
@@ -112,23 +127,24 @@ class VOStageCommit {
     }
 
     // search if there are some VO already inserted/deleted before.
+    bool isAlreadyVOStaged = false;
     for (int i = 0; i < stagedList.length; i++) {
       var stage = stagedList[i];
       final VO stagedVO = stage[1];
       final StagedType stageType = stage[0];
       if (stagedVO.url == vo.url && stagedVO.isImageVO == vo.isImageVO) {
         // this means there already staged action for this vo.
-        if (stageType == StagedType.insert) {
-          continue;
-        } else {
+        isAlreadyVOStaged = true;
+        if (stageType == StagedType.delete) {
           stagedList.removeAt(i);
           i--;
-          continue;
         }
-      } else {
-        // this means vo is new for stagedList.
-        stagedList.add([StagedType.insert, vo]);
+        break;
       }
+    }
+
+    if (isAlreadyVOStaged == false) {
+      stagedList.add([StagedType.insert, vo]);
     }
   }
 
@@ -139,34 +155,87 @@ class VOStageCommit {
     }
 
     // search if there are some VO already inserted/deleted before.
+    bool isAlreadyVOStaged = false;
     for (int i = 0; i < stagedList.length; i++) {
       final VO stagedVO = stagedList[i][1];
       final StagedType stageType = stagedList[i][0];
       if (stagedVO.url == vo.url && stagedVO.isImageVO == vo.isImageVO) {
         // this means there already staged action for this vo.
-        if (stageType == StagedType.delete) {
-          continue;
-        } else {
+        isAlreadyVOStaged = true;
+        if (stageType == StagedType.insert) {
           stagedList.removeAt(i);
           i--;
-          continue;
         }
-      } else {
-        // this means vo is new for stagedList.
-        stagedList.add([StagedType.delete, vo]);
+        break;
       }
+    }
+    if (isAlreadyVOStaged == false) {
+      // this means vo is new for stagedList.
+      stagedList.add([StagedType.delete, vo]);
     }
   }
 
   static void commit() {
+    debugConsole(stagedList);
     for (int i = 0; i < stagedList.length; i++) {
       final VO stagedVO = stagedList[i][1];
       final StagedType stageType = stagedList[i][0];
       if (stageType == StagedType.insert) {
-        hiveController.insertVO(stagedVO);
+        HIVEController.insertVO(stagedVO);
       } else {
-        hiveController.deleteVO(stagedVO);
+        HIVEController.deleteVO(stagedVO);
       }
     }
+  }
+
+  /// get the all of VO , by decending order of likeOrder.
+  static List getAll() {
+    // debugConsole("getAll called");
+    // get and convert
+    final mapListAll = HIVEController.getAll(null);
+    var voListAll = [];
+    mapListAll.forEach((map) {
+      if (map["isImageVO"] == true) {
+        // debugConsole(map["dateTime"]!);
+        var newVO = ImageVO(map["url"]!, map["dateTime"]!, map["thumbnailURL"]!, map["imageURL"]!, map["name"]!);
+        voListAll.add(newVO);
+      } else {
+        var newVO = WebVO(map["url"]!, map["dateTime"]!, map["title"]!, map["contents"]!);
+        voListAll.add(newVO);
+      }
+    });
+
+    voListAll.sort((a, b) => a.likeOrder.compareTo(b.likeOrder));
+    return voListAll;
+  }
+
+  static List getImageVoAll() {
+    // get and convert
+    final mapListAll = HIVEController.getAll(true);
+    var voListAll = [];
+    mapListAll.forEach((map) {
+      if (map["isImageVO"] == true) {
+        var newVO = ImageVO(map["doc_url"]!, map["datetime"]!, map["thumbnail_url"]!, map["image_url"]!, map["name"]!);
+        voListAll.add(newVO);
+      }
+    });
+
+    voListAll.sort((a, b) => a.likeOrder.compareTo(b.likeOrder));
+    return voListAll;
+  }
+
+  static List getWebVoAll() {
+    // get and convert
+    final mapListAll = HIVEController.getAll(false);
+    var voListAll = [];
+    mapListAll.forEach((map) {
+      if (map["isImageVO"] == false) {
+        var newVO = WebVO(map["url"]!, map["datetime"]!, map["title"]!, map["contents"]!);
+        voListAll.add(newVO);
+      }
+    });
+
+    voListAll.sort((a, b) => a.likeOrder.compareTo(b.likeOrder));
+    return voListAll;
   }
 }
