@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_search/package/debugConsole.dart';
 import 'package:image_search/view/mainView.dart';
-import 'package:image_search/package/kakao_api.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_search/controller/vo_controle.dart';
 import 'package:image_search/model/hive_controle.dart';
@@ -9,8 +8,8 @@ import 'package:image_search/model/hive_controle.dart';
 void main() async {
   await Hive.initFlutter();
   await HIVEController.initializeHive();
-  await HIVEController.clearHive();
-  DEBUG();
+  // await HIVEController.clearHive();
+  // DEBUG();
   runApp(const MyApp());
 }
 

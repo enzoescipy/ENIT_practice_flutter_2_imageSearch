@@ -112,6 +112,26 @@ class GetVoFromKakao {
   }
 }
 
+int _debugCount = 9;
+
+/// make the debug-only meaningless VO object.
+dynamic getDebugVO(bool isImageVO) {
+  _debugCount++;
+  if (_debugCount > 100) {
+    throw Exception("no over 90 debug Obj not allowed");
+  }
+  if (isImageVO) {
+    return ImageVO(
+        "$_debugCount url",
+        "20${_debugCount.toString()}.11.22",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu_lrik6ff2CC0Og2xVh6iwQHo-S-JTFHGvw&usqp=CAU",
+        "https://www.cnet.com/a/img/resize/6bff5bab34782dfb1b316eb9b186d749060ff47d/hub/2021/06/04/00f4dd44-e56e-4097-bb8b-8be5f27ae7b6/percymarsbuttcrackrock.jpg?auto=webp&fit=crop&height=675&width=1200",
+        "test $_debugCount");
+  } else {
+    return WebVO("$_debugCount url", "20${_debugCount.toString()}.11.22", "$_debugCount title", "$_debugCount contents");
+  }
+}
+
 enum StagedType { insert, delete }
 
 class VOStageCommitGet {
