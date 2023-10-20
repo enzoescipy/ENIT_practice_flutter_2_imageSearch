@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'static/colors.dart';
-import 'page/imageSearchPage.dart';
-import 'page/webSearchPage.dart';
-import 'page/likedListPage.dart';
+import 'static/myOrdinaryStyle.dart';
+import 'page/imageSearchPage.dart' as ImagePage;
+import 'page/webSearchPage.dart' as WebPage;
+import 'page/likedListPage.dart' as LikePage;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -12,16 +12,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: WinterGreenColor.snowBlue,
-        ),
-        textTheme: const TextTheme(bodyMedium: TextStyle(color: WinterGreenColor.deepGrayBlue, fontFamily: "Tmoney")),
+        colorScheme: WinterGreenColor.winterGreenTheme,
+        textTheme: CuteText.cuteTextTheme,
         useMaterial3: true,
       ),
       home: const NavigateHomePage(),
+      routes: {
+        ImagePage.ImageDetail.routeName: (context) => const ImagePage.ImageDetail()
+      },
     );
   }
-
 }
 
 class NavigateHomePage extends StatefulWidget {
@@ -32,7 +32,7 @@ class NavigateHomePage extends StatefulWidget {
 }
 
 class _NavigateHomePageState extends State<NavigateHomePage> {
-  final List<Widget> _widgetOption = const [ImageSearchPage(), WebSearchPage(), LikedListPage()];
+  final List<Widget> _widgetOption = const [ImagePage.ImageSearchPage(), WebPage.WebSearchPage(), LikePage.LikedListPage()];
   int _selectedIndex = 0;
 
   void _onTap(int index) {
@@ -58,6 +58,4 @@ class _NavigateHomePageState extends State<NavigateHomePage> {
       ),
     );
   }
-
 }
-

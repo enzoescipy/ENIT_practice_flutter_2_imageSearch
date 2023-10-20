@@ -123,12 +123,15 @@ dynamic getDebugVO(bool isImageVO) {
   if (isImageVO) {
     return ImageVO(
         "$_debugCount url",
-        "20${_debugCount.toString()}.11.22",
+        "20${_debugCount.toString()}-11-22",
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu_lrik6ff2CC0Og2xVh6iwQHo-S-JTFHGvw&usqp=CAU",
-        "https://www.cnet.com/a/img/resize/6bff5bab34782dfb1b316eb9b186d749060ff47d/hub/2021/06/04/00f4dd44-e56e-4097-bb8b-8be5f27ae7b6/percymarsbuttcrackrock.jpg?auto=webp&fit=crop&height=675&width=1200",
+        "https://i1.sndcdn.com/artworks-8hUNunJfPf7jLpzY-jYmGvg-t500x500.jpg",
         "test $_debugCount");
   } else {
-    return WebVO("$_debugCount url", "20${_debugCount.toString()}.11.22", "$_debugCount title", "$_debugCount contents");
+    return WebVO("$_debugCount url",
+    "20${_debugCount.toString()}-11-22",
+     "$_debugCount title", 
+     "$_debugCount contents is very Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
   }
 }
 

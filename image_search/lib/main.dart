@@ -10,6 +10,7 @@ void main() async {
   await HIVEController.initializeHive();
   // await HIVEController.clearHive();
   // DEBUG();
+  // await HIVEController.clearHive();
   runApp(const MyApp());
 }
 
