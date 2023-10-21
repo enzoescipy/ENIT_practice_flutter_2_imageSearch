@@ -10,6 +10,8 @@ class KakaoAPI {
   late final size;
   int page = 0;
   bool isReachedEnd = false;
+
+  static const pageLimit = 35;
 }
 
 class KakaoWebAPI extends KakaoAPI {
@@ -30,8 +32,10 @@ class KakaoWebAPI extends KakaoAPI {
   ///   - contents : string content of document
   ///   - title : string title of document
   Future<List<Map<String, String>>?> Next() async {
+    debugConsole([keyword, page]);
+
     // validate the current page
-    if (page > 50) {
+    if (page > KakaoAPI.pageLimit) {
       return null;
     }
     // increase the paging
@@ -84,8 +88,9 @@ class KakaoImageAPI extends KakaoAPI {
   ///   - name : name of image
   ///   - doc_url : source of image
   Future<List<Map<String, String>>?> Next() async {
+    debugConsole([keyword, page]);
     // validate the current page
-    if (page > 50) {
+    if (page > KakaoAPI.pageLimit) {
       return null;
     }
     // increase the paging

@@ -61,7 +61,6 @@ Widget webVOtoListViewItem(WebVO vo, BuildContext context) {
   );
 }
 
-
 Widget imageVOtoListViewItem(ImageVO vo, BuildContext context) {
   final img = Padding(
     padding: const EdgeInsets.all(8.0),
@@ -98,7 +97,9 @@ Widget imageVOtoListViewItem(ImageVO vo, BuildContext context) {
       ],
     ),
   );
-  final likeButton = LikeButton(isLiked: vo.likeOrder < 0 ? false : true,);
+  final likeButton = LikeButton(
+    isLiked: vo.likeOrder < 0 ? false : true,
+  );
 
   return GestureDetector(
     onTap: () {
@@ -115,4 +116,8 @@ Widget imageVOtoListViewItem(ImageVO vo, BuildContext context) {
       ),
     ),
   );
+}
+
+Widget loadingWidgetItem() {
+  return const SizedBox.square(dimension: 30,child: CircularProgressIndicator());
 }

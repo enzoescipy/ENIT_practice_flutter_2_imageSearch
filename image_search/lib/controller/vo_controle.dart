@@ -9,12 +9,13 @@ class GetVoFromKakao {
   bool isImageVO;
   KakaoAPI? kakaoAPI;
   final int size;
+  final String keyword;
 
   static void receptRESTkey(String restKey) {
     _REST_key = restKey;
   }
 
-  GetVoFromKakao(this.isImageVO, this.size);
+  GetVoFromKakao(this.keyword, this.isImageVO, this.size);
 
   /// return the list of VO from keyword, kakao api.
   /// purposed for the first call
@@ -22,7 +23,7 @@ class GetVoFromKakao {
   ///   - repeated call deny
   ///   - page reached its limitation
   ///   - invalid response (mainly wrong password or option)
-  Future<List?> searchFirst(String keyword) async {
+  Future<List<VO>?> searchFirst() async {
     // if searchFirst already called, function should not be called.
     if (_REST_key == null || kakaoAPI != null) {
       return null;
@@ -73,7 +74,7 @@ class GetVoFromKakao {
   ///   - not called searchFirst() deny
   ///   - page reached its limitation
   ///   - invalid response (mainly wrong password or option)
-  Future<List?> searchNext() async {
+  Future<List<VO>?> searchNext() async {
     // if searchFirst() ever called even once, return null.
     if (_REST_key == null || kakaoAPI == null) {
       return null;
