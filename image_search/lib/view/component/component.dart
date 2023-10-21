@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:image_search/model/vo.dart';
+import 'package:image_search/package/debugConsole.dart';
 import 'package:like_button/like_button.dart';
 import 'package:image_search/view/static/myOrdinaryStyle.dart';
+import 'package:image_search/controller/vo_controle.dart';
 
 import 'package:image_search/view/page/imageSearchPage.dart' as ImagePage;
 import 'package:image_search/view/page/webSearchPage.dart' as WebPage;
 import 'package:image_search/view/page/likedListPage.dart' as LikePage;
+
+Future<bool> _changeIsLiked(status) async {
+  return Future.value(!status);
+}
 
 Widget webVOtoListViewItem(WebVO vo, BuildContext context) {
   final contents = Container(
@@ -99,6 +105,15 @@ Widget imageVOtoListViewItem(ImageVO vo, BuildContext context) {
   );
   final likeButton = LikeButton(
     isLiked: vo.likeOrder < 0 ? false : true,
+    onTap: (isLiked) async {
+      debugConsole(isLiked);
+      if (!isLiked) {
+        VOStageCommitGet.insertVO(vo);
+      } else {
+        VOStageCommitGet.deleteVO(vo);
+      }
+      return _changeIsLiked(isLiked);
+    },
   );
 
   return GestureDetector(
@@ -119,5 +134,5 @@ Widget imageVOtoListViewItem(ImageVO vo, BuildContext context) {
 }
 
 Widget loadingWidgetItem() {
-  return const SizedBox.square(dimension: 30,child: CircularProgressIndicator());
+  return const SizedBox.square(dimension: 30, child: CircularProgressIndicator());
 }

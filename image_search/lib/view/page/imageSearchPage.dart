@@ -203,6 +203,9 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
   }
 
   void onSubmit() {
+    if (_currentKeyword != null) {
+      VOStageCommitGet.commit();
+    }
     setState(() {
       _currentKeyword = _searchTextController.text;
       _kakaoInstance = null;

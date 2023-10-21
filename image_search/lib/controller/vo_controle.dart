@@ -44,6 +44,11 @@ class GetVoFromKakao {
         mapList.forEach((map) {
           // debugMap(map);
           var newVO = ImageVO(map["doc_url"]!, map["datetime"]!, map["thumbnail_url"]!, map["image_url"]!, map["name"]!);
+          int? existsVOKey = HIVEController.findVOKeybyURL(newVO.url, newVO.isImageVO);
+          if (existsVOKey != null) {
+            final existsMAp = HIVEController.getSingleVO(existsVOKey);
+            newVO.likeOrder = existsMAp?["likeOrder"];
+          }
           voList.add(newVO);
         });
         return voList;
@@ -61,6 +66,11 @@ class GetVoFromKakao {
         List<WebVO> voList = [];
         mapList.forEach((map) {
           var newVO = WebVO(map["url"]!, map["datetime"]!, map["title"]!, map["contents"]!);
+          int? existsVOKey = HIVEController.findVOKeybyURL(newVO.url, newVO.isImageVO);
+          if (existsVOKey != null) {
+            final existsMAp = HIVEController.getSingleVO(existsVOKey);
+            newVO.likeOrder = existsMAp?["likeOrder"];
+          }
           voList.add(newVO);
         });
         return voList;
@@ -93,6 +103,11 @@ class GetVoFromKakao {
         List<ImageVO> voList = [];
         mapList.forEach((map) {
           var newVO = ImageVO(map["doc_url"]!, map["datetime"]!, map["thumbnail_url"]!, map["image_url"]!, map["name"]!);
+          int? existsVOKey = HIVEController.findVOKeybyURL(newVO.url, newVO.isImageVO);
+          if (existsVOKey != null) {
+            final existsMAp = HIVEController.getSingleVO(existsVOKey);
+            newVO.likeOrder = existsMAp?["likeOrder"];
+          }
           voList.add(newVO);
         });
         return voList;
@@ -109,6 +124,11 @@ class GetVoFromKakao {
         List<WebVO> voList = [];
         mapList.forEach((map) {
           var newVO = WebVO(map["url"]!, map["datetime"]!, map["title"]!, map["contents"]!);
+          int? existsVOKey = HIVEController.findVOKeybyURL(newVO.url, newVO.isImageVO);
+          if (existsVOKey != null) {
+            final existsMAp = HIVEController.getSingleVO(existsVOKey);
+            newVO.likeOrder = existsMAp?["likeOrder"];
+          }
           voList.add(newVO);
         });
         return voList;
@@ -222,6 +242,7 @@ class VOStageCommitGet {
         HIVEController.deleteVO(stagedVO);
       }
     }
+    stagedList.clear();
   }
 
   /// get the all of VO , by decending order of likeOrder.
