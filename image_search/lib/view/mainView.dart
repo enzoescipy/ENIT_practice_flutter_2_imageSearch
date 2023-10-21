@@ -18,7 +18,8 @@ class MyApp extends StatelessWidget {
       ),
       home: const NavigateHomePage(),
       routes: {
-        ImagePage.ImageDetail.routeName: (context) => const ImagePage.ImageDetail()
+        ImagePage.ImageDetail.routeName: (context) => const ImagePage.ImageDetail(),
+        WebPage.WebDetail.routeName:(context) => const WebPage.WebDetail()
       },
     );
   }
