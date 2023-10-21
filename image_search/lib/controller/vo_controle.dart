@@ -246,18 +246,20 @@ class VOStageCommitGet {
   }
 
   /// get the all of VO , by decending order of likeOrder.
-  static List getAll() {
+  static List<VO> getAll() {
     // debugConsole("getAll called");
     // get and convert
     final mapListAll = HIVEController.getAll(null);
-    var voListAll = [];
+    List<VO> voListAll = [];
     mapListAll.forEach((map) {
       if (map["isImageVO"] == true) {
         // debugConsole(map["dateTime"]!);
         var newVO = ImageVO(map["url"]!, map["dateTime"]!, map["thumbnailURL"]!, map["imageURL"]!, map["name"]!);
+        newVO.likeOrder = map["likeOrder"];
         voListAll.add(newVO);
       } else {
         var newVO = WebVO(map["url"]!, map["dateTime"]!, map["title"]!, map["contents"]!);
+        newVO.likeOrder = map["likeOrder"];
         voListAll.add(newVO);
       }
     });

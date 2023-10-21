@@ -9,10 +9,9 @@ void main() async {
   enableDebug();
   await Hive.initFlutter();
   await HIVEController.initializeHive();
+  await HIVEController.clearHive();
   GetVoFromKakao.receptRESTkey('17d7e0a3463cf55e47156470a53522bf');
-  // await HIVEController.clearHive();
   // DEBUG();
-  // await HIVEController.clearHive();
   runApp(const MyApp());
 }
 

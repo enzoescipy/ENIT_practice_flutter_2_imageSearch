@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'static/myOrdinaryStyle.dart';
+import 'package:image_search/controller/vo_controle.dart';
 import 'page/imageSearchPage.dart' as ImagePage;
 import 'page/webSearchPage.dart' as WebPage;
 import 'page/likedListPage.dart' as LikePage;
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
       home: const NavigateHomePage(),
       routes: {
         ImagePage.ImageDetail.routeName: (context) => const ImagePage.ImageDetail(),
-        WebPage.WebDetail.routeName:(context) => const WebPage.WebDetail()
+        WebPage.WebDetail.routeName: (context) => const WebPage.WebDetail()
       },
     );
   }
@@ -39,6 +40,7 @@ class _NavigateHomePageState extends State<NavigateHomePage> {
   void _onTap(int index) {
     setState(() {
       _selectedIndex = index;
+      VOStageCommitGet.commit();
     });
   }
 

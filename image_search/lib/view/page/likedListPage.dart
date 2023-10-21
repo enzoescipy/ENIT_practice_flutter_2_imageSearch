@@ -18,16 +18,7 @@ class LikedListPage extends StatefulWidget {
 }
 
 class _LikedListPageState extends State<LikedListPage> {
-  final List<VO> _contentVOList = [
-    getDebugVO(false, isLiked: true),
-    getDebugVO(true, isLiked: true),
-    getDebugVO(false),
-    getDebugVO(true),
-    getDebugVO(false),
-    getDebugVO(true),
-    getDebugVO(false),
-    getDebugVO(false)
-  ];
+  final List<VO> _contentVOList = VOStageCommitGet.getAll();
 
   final _dropDownTextList = const ["전체", "이미지", "내용"];
   int _dropDownSelection = 0;
@@ -91,9 +82,16 @@ class _LikedListPageState extends State<LikedListPage> {
         child: dropDownMenu);
   }
 
-
   Widget listView() {
-    final contentWidgetList = _contentVOList.map((vo) {
+    final contentWidgetList = _contentVOList.where((vo) {
+      if (vo is WebVO && (_dropDownSelection == 0 || _dropDownSelection == 2)) {
+        return true;
+      } else if (vo is ImageVO && (_dropDownSelection == 0 || _dropDownSelection == 1)) {
+        return true;
+      } else {
+        return false;
+      }
+    }).map((vo) {
       Widget voToWidget;
       if (vo is WebVO) {
         voToWidget = Component.webVOtoListViewItem(vo, context);

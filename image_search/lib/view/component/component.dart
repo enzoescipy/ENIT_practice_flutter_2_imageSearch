@@ -40,6 +40,8 @@ Widget webVOtoListViewItem(WebVO vo, BuildContext context) {
           padding: const EdgeInsets.only(top: 3.0),
           child: Text(
             vo.url,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
@@ -48,6 +50,15 @@ Widget webVOtoListViewItem(WebVO vo, BuildContext context) {
   );
   final likeButton = LikeButton(
     isLiked: vo.likeOrder < 0 ? false : true,
+    onTap: (isLiked) async {
+      debugConsole(isLiked);
+      if (!isLiked) {
+        VOStageCommitGet.insertVO(vo);
+      } else {
+        VOStageCommitGet.deleteVO(vo);
+      }
+      return _changeIsLiked(isLiked);
+    },
   );
 
   return GestureDetector(

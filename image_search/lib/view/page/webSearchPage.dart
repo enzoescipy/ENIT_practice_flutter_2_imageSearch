@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_search/view/static/myOrdinaryStyle.dart';
+import 'package:image_search/package/debugConsole.dart';
 import 'package:image_search/model/vo.dart';
 import 'package:image_search/controller/vo_controle.dart';
 import 'package:like_button/like_button.dart';
@@ -14,16 +15,175 @@ class WebSearchPage extends StatefulWidget {
 }
 
 class _WebSearchPageState extends State<WebSearchPage> {
-  final List<WebVO> _contentVOList = [
-    getDebugVO(false,isLiked:true),
-    getDebugVO(false,isLiked:true),
-    getDebugVO(false),
-    getDebugVO(false),
-    getDebugVO(false),
-    getDebugVO(false),
-    getDebugVO(false),
-    getDebugVO(false)
-  ];
+  // final List<WebVO> _contentVOList = [
+  //   getDebugVO(false,isLiked:true),
+  //   getDebugVO(false,isLiked:true),
+  //   getDebugVO(false),
+  //   getDebugVO(false),
+  //   getDebugVO(false),
+  //   getDebugVO(false),
+  //   getDebugVO(false),
+  //   getDebugVO(false)
+  // ];
+
+  final List<WebVO> _contentVOList = [];
+  GetVoFromKakao? _kakaoInstance;
+  String? _currentKeyword;
+  bool _isListViewShouldReLoad = false;
+
+  ScrollController _listViewScrollController = ScrollController();
+  TextEditingController _searchTextController = TextEditingController();
+
+  Widget listView() {
+    if (_kakaoInstance == null) {
+      if (_currentKeyword == null) {
+        // no keyword found : just return the empty view
+        return Expanded(child: ListView());
+      } else {
+        // keyword exists but no kakaoInstance : kakaoInstance.searchFirst should be fired.
+        // also, erase the initialoffset of scroll controller.
+        _listViewScrollController = ScrollController();
+        _listViewScrollController.addListener(onScrollReachedEnd);
+        _kakaoInstance = GetVoFromKakao(_currentKeyword!, false, 10);
+        return FutureBuilder(
+          future: _kakaoInstance!.searchFirst(),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.none:
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [Component.loadingWidgetItem()],
+                  ),
+                );
+              case ConnectionState.waiting:
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [Component.loadingWidgetItem()],
+                  ),
+                );
+              case ConnectionState.active:
+                final appendListVO = (snapshot.data ?? []) as List<WebVO>;
+                final showableListVO = _contentVOList + appendListVO;
+                final contentWidgetList = showableListVO.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
+                return Expanded(
+                  child: ListView(
+                    children: contentWidgetList,
+                    controller: _listViewScrollController,
+                  ),
+                );
+              case ConnectionState.done:
+                debugConsole((snapshot.data ?? []));
+                final appendListVO = (snapshot.data ?? []) as List<WebVO>;
+                _contentVOList.addAll(appendListVO);
+                final contentWidgetList = _contentVOList.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
+                return Expanded(
+                  child: ListView(
+                    children: contentWidgetList,
+                    controller: _listViewScrollController,
+                  ),
+                );
+            }
+          },
+        );
+      }
+    } else if (_isListViewShouldReLoad == true) {
+      debugConsole("searchNext fire!");
+      // this means that some "watching needed" view had reached its end position.
+      // so, we should get the kakaoInstance.searchNext() then re-build the view.
+
+      // turn off the _isListViewShouldReLoad
+      _isListViewShouldReLoad = false;
+      // build the view.
+      return Expanded(
+          child: FutureBuilder(
+        future: _kakaoInstance!.searchNext(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.none || snapshot.connectionState == ConnectionState.waiting) {
+            final contentWidgetList = _contentVOList.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
+            return Column(
+              children: [
+                Flexible(
+                  child: ListView(
+                    controller: _listViewScrollController,
+                    children: contentWidgetList,
+                  ),
+                ),
+                Component.loadingWidgetItem()
+              ],
+            );
+          } else {
+            if (snapshot.data == null) {
+              // kakaoInstance reached its maximum page : just build view from the _contentVOList.
+              final contentWidgetList = _contentVOList.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
+              return ListView(
+                children: contentWidgetList,
+              );
+            } else if (snapshot.connectionState == ConnectionState.active) {
+              final appendListVO = (snapshot.data ?? []) as List<WebVO>;
+              final showableListVO = _contentVOList + appendListVO;
+              final contentWidgetList = showableListVO.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
+              final resultListView = ListView(
+                controller: _listViewScrollController,
+                children: contentWidgetList,
+              );
+              return resultListView;
+            } else {
+              // case snapshot.connectionState == ConnectionState.done
+              final appendListVO = (snapshot.data ?? []) as List<WebVO>;
+              _contentVOList.addAll(appendListVO);
+              final contentWidgetList = _contentVOList.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
+              final resultListView = ListView(
+                controller: _listViewScrollController,
+                children: contentWidgetList,
+              );
+              return resultListView;
+            }
+          }
+        },
+      ));
+    } else {
+      // kakaoInstance exists : just build view from the _contentVOList.
+      final contentWidgetList = _contentVOList.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
+      return Expanded(
+          child: ListView(
+        controller: _listViewScrollController,
+        children: contentWidgetList,
+      ));
+    }
+  }
+
+  void onScrollReachedEnd() {
+    if (_listViewScrollController.position.atEdge) {
+      bool isTop = _listViewScrollController.position.pixels == 0;
+      final scrollPositionSaved = _listViewScrollController.position.pixels;
+      if (isTop == false) {
+        // is bot.
+        _listViewScrollController = ScrollController(initialScrollOffset: scrollPositionSaved);
+        _listViewScrollController.addListener(onScrollReachedEnd);
+        setState(() {
+          _isListViewShouldReLoad = true;
+        });
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _listViewScrollController.addListener(onScrollReachedEnd);
+  }
+
+  @override
+  void dispose() {
+    _listViewScrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +214,14 @@ class _WebSearchPageState extends State<WebSearchPage> {
   }
 
   void onSubmit() {
-    // TODO:
+    if (_currentKeyword != null) {
+      VOStageCommitGet.commit();
+    }
+    setState(() {
+      _currentKeyword = _searchTextController.text;
+      _kakaoInstance = null;
+      _contentVOList.clear();
+    });
   }
 
   Widget search() {
@@ -63,6 +230,7 @@ class _WebSearchPageState extends State<WebSearchPage> {
       padding: const EdgeInsets.only(right: 20),
       child: TextField(
         maxLines: 1,
+        controller: _searchTextController,
         style: Theme.of(context).textTheme.bodyMedium,
       ),
     );
@@ -83,17 +251,6 @@ class _WebSearchPageState extends State<WebSearchPage> {
         ],
       ),
     );
-  }
-
-
-  Widget listView() {
-    final contentWidgetList = _contentVOList.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
-
-    final listView = ListView(
-      children: contentWidgetList,
-    );
-
-    return Expanded(child: listView);
   }
 }
 
