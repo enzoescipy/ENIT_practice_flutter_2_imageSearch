@@ -6,10 +6,10 @@ import 'package:image_search/controller/vo_controle.dart';
 import 'package:image_search/model/hive_controle.dart';
 
 void main() async {
-  enableDebug();
+  // enableDebug();
   await Hive.initFlutter();
   await HIVEController.initializeHive();
-  await HIVEController.clearHive();
+  // await HIVEController.clearHive();
   GetVoFromKakao.receptRESTkey('17d7e0a3463cf55e47156470a53522bf');
   // DEBUG();
   runApp(const MyApp());
