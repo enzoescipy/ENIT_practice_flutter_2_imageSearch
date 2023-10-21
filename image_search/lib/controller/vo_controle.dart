@@ -5,12 +5,16 @@ import 'package:image_search/model/vo.dart';
 import 'package:image_search/model/hive_controle.dart';
 
 class GetVoFromKakao {
-  final String REST_key;
+  static String? _REST_key;
   bool isImageVO;
   KakaoAPI? kakaoAPI;
   final int size;
 
-  GetVoFromKakao(this.REST_key, this.isImageVO, this.size);
+  static void receptRESTkey(String restKey) {
+    _REST_key = restKey;
+  }
+
+  GetVoFromKakao(this.isImageVO, this.size);
 
   /// return the list of VO from keyword, kakao api.
   /// purposed for the first call
@@ -20,13 +24,13 @@ class GetVoFromKakao {
   ///   - invalid response (mainly wrong password or option)
   Future<List?> searchFirst(String keyword) async {
     // if searchFirst already called, function should not be called.
-    if (kakaoAPI != null) {
+    if (_REST_key == null || kakaoAPI != null) {
       return null;
     }
 
     // set the kakaoAPI instance
     if (isImageVO) {
-      kakaoAPI = KakaoImageAPI(REST_key, keyword, size);
+      kakaoAPI = KakaoImageAPI(_REST_key!, keyword, size);
       final kakaoImageAPI = kakaoAPI as KakaoImageAPI;
 
       var resultMapList = kakaoImageAPI.Next();
@@ -44,7 +48,7 @@ class GetVoFromKakao {
         return voList;
       });
     } else {
-      kakaoAPI = KakaoWebAPI(REST_key, keyword, size);
+      kakaoAPI = KakaoWebAPI(_REST_key!, keyword, size);
       final kakaoWebAPI = kakaoAPI as KakaoWebAPI;
 
       var resultMapList = kakaoWebAPI.Next();
@@ -71,7 +75,7 @@ class GetVoFromKakao {
   ///   - invalid response (mainly wrong password or option)
   Future<List?> searchNext() async {
     // if searchFirst() ever called even once, return null.
-    if (kakaoAPI == null) {
+    if (_REST_key == null || kakaoAPI == null) {
       return null;
     }
 
