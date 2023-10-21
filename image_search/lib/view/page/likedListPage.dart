@@ -5,6 +5,11 @@ import 'package:image_search/model/vo.dart';
 import 'package:image_search/controller/vo_controle.dart';
 import 'package:like_button/like_button.dart';
 
+import 'imageSearchPage.dart' as ImagePage;
+import 'webSearchPAge.dart' as WebPage;
+
+import 'package:image_search/view/component/component.dart' as Component;
+
 class LikedListPage extends StatefulWidget {
   const LikedListPage({Key? key}) : super(key: key);
 
@@ -13,13 +18,13 @@ class LikedListPage extends StatefulWidget {
 }
 
 class _LikedListPageState extends State<LikedListPage> {
-  final List<WebVO> _contentVOList = [
+  final List<VO> _contentVOList = [
+    getDebugVO(false, isLiked: true),
+    getDebugVO(true, isLiked: true),
     getDebugVO(false),
+    getDebugVO(true),
     getDebugVO(false),
-    getDebugVO(false),
-    getDebugVO(false),
-    getDebugVO(false),
-    getDebugVO(false),
+    getDebugVO(true),
     getDebugVO(false),
     getDebugVO(false)
   ];
@@ -86,76 +91,23 @@ class _LikedListPageState extends State<LikedListPage> {
         child: dropDownMenu);
   }
 
-  Widget webVOtoListViewItem(WebVO vo) {
-    final contents = Container(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(
-        vo.contents,
-        maxLines: 4,
-        overflow: TextOverflow.ellipsis,
-        style: Theme.of(context).textTheme.bodySmall,
-      ),
-    );
-
-    final itemDescription = Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 3.0),
-            child: Text(
-              "${vo.dateTime.year}년 ${vo.dateTime.month}월 ${vo.dateTime.day}일",
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 3.0),
-            child: Text(
-              vo.url,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ),
-        ],
-      ),
-    );
-    final likeButton = LikeButton();
-
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        decoration: RoundyDecoration.containerDecoration(WinterGreenColor.deepGrayBlue.withAlpha(20)),
-        margin: const EdgeInsets.all(8.0),
-        child: Row(
-          children: [Expanded(flex: 4, child: contents), Flexible(flex: 4, child: itemDescription), Flexible(flex: 1, child: likeButton)],
-        ),
-      ),
-    );
-
-    // return GestureDetector(
-    //   onTap: () {
-    //     Navigator.pushNamed(context, WebDetail.routeName, arguments: WebDetailArguments(vo));
-    //   },
-    //   child: Padding(
-    //     padding: const EdgeInsets.all(8.0),
-    //     child: Container(
-    //       decoration: RoundyDecoration.containerDecoration(WinterGreenColor.deepGrayBlue.withAlpha(20)),
-    //       margin: const EdgeInsets.all(8.0),
-    //       child: Row(
-    //         children: [Expanded(flex: 4, child: contents), Flexible(flex: 4, child: itemDescription), Flexible(flex: 1, child: likeButton)],
-    //       ),
-    //     ),
-    //   ),
-    // );
-  }
 
   Widget listView() {
-    final contentWidgetList = _contentVOList.map((vo) => webVOtoListViewItem(vo)).toList();
+    final contentWidgetList = _contentVOList.map((vo) {
+      Widget voToWidget;
+      if (vo is WebVO) {
+        voToWidget = Component.webVOtoListViewItem(vo, context);
+      } else if (vo is ImageVO) {
+        voToWidget = Component.imageVOtoListViewItem(vo, context);
+      } else {
+        throw Exception("어쩌피 이 메시지는 볼 일이 없겠지. 그러니 한마디 하겠다. 디버깅 이미지는 나사에서 발견한 엉덩이 모양 우주 바위이다!!");
+      }
+      return voToWidget;
+    }).toList();
 
     final listView = ListView(
       children: contentWidgetList,
     );
-
     return Expanded(child: listView);
   }
 }

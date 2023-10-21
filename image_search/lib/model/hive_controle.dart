@@ -25,6 +25,15 @@ class HIVEController {
     await box?.clear();
   }
 
+  static Map? getSingleVO(dynamic key) {
+    // if box not initialized, throw.
+    if (box == null) {
+      throw Exception("box has not initialized before. please call initializeHive() and check if returned ");
+    }
+
+    return box!.get(key);
+  }
+
   /// get the all of vo from the box.
   /// if param is true or false,
   ///   - true : get only for image VO.
