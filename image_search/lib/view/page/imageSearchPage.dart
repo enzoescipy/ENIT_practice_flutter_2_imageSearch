@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_search/package/debugConsole.dart';
 import 'package:image_search/view/static/myOrdinaryStyle.dart';
 import 'package:image_search/model/vo.dart';
@@ -199,11 +200,15 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
   }
 
   void onSubmit() {
+    final text = _searchTextController.text.replaceAll(RegExp(r"[ᆞ|ᆢ|ㆍ|ᆢ|ᄀᆞ|ᄂᆞ|ᄃᆞ|ᄅᆞ|ᄆᆞ|ᄇᆞ|ᄉᆞ|ᄋᆞ|ᄌᆞ|ᄎᆞ|ᄏᆞ|ᄐᆞ|ᄑᆞ|ᄒᆞ]"), "");
+    if (text.isEmpty) {
+      return;
+    }
     if (_currentKeyword != null) {
       VOStageCommitGet.commit();
     }
     setState(() {
-      _currentKeyword = _searchTextController.text;
+      _currentKeyword = text;
       _kakaoInstance = null;
       _contentVOList.clear();
       _contentWidgetList.clear();
@@ -216,6 +221,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
       padding: const EdgeInsets.only(right: 20),
       child: TextField(
         controller: _searchTextController,
+        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-z|A-Z|0-9|ㄱ-ㅎ|ㅏ-ㅣ|가-힣|ᆞ|ᆢ|ㆍ|ᆢ|ᄀᆞ|ᄂᆞ|ᄃᆞ|ᄅᆞ|ᄆᆞ|ᄇᆞ|ᄉᆞ|ᄋᆞ|ᄌᆞ|ᄎᆞ|ᄏᆞ|ᄐᆞ|ᄑᆞ|ᄒᆞ]'))],
         style: Theme.of(context).textTheme.bodyMedium,
         maxLines: 1,
       ),
@@ -288,12 +294,11 @@ class ImageDetail extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       height: MediaQuery.of(context).size.height * 0.6,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(8.0), 
-        child: Image.network(
-          url,
-          fit: BoxFit.cover,
-          )
-        ),
+          borderRadius: BorderRadius.circular(8.0),
+          child: Image.network(
+            url,
+            fit: BoxFit.cover,
+          )),
     );
     return GestureDetector(
       child: img,
