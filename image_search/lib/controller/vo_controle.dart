@@ -115,23 +115,31 @@ class GetVoFromKakao {
 int _debugCount = 9;
 
 /// make the debug-only meaningless VO object.
-dynamic getDebugVO(bool isImageVO) {
+dynamic getDebugVO(bool isImageVO, {bool isLiked = false}) {
   _debugCount++;
   if (_debugCount > 100) {
     throw Exception("no over 90 debug Obj not allowed");
   }
   if (isImageVO) {
-    return ImageVO(
+    final imageVO = ImageVO(
         "$_debugCount url",
         "20${_debugCount.toString()}-11-22",
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu_lrik6ff2CC0Og2xVh6iwQHo-S-JTFHGvw&usqp=CAU",
         "https://i1.sndcdn.com/artworks-8hUNunJfPf7jLpzY-jYmGvg-t500x500.jpg",
         "test $_debugCount");
+    if (isLiked == true) {
+      imageVO.likeOrder = _debugCount;
+    }
+
+    return imageVO;
   } else {
-    return WebVO("$_debugCount url",
-    "20${_debugCount.toString()}-11-22",
-     "$_debugCount title", 
-     "$_debugCount contents is very Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+    final webVO = WebVO("$_debugCount url", "20${_debugCount.toString()}-11-22", "$_debugCount title",
+        "$_debugCount contents is very Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+    if (isLiked == true) {
+      webVO.likeOrder = _debugCount;
+    }
+
+    return webVO;
   }
 }
 

@@ -48,6 +48,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
         ),
       ),
       centerTitle: true,
+      scrolledUnderElevation: 0,
     );
   }
 

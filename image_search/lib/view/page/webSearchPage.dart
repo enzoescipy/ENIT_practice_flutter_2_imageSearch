@@ -47,6 +47,7 @@ class _WebSearchPageState extends State<WebSearchPage> {
         ),
       ),
       centerTitle: true,
+      scrolledUnderElevation: 0,
     );
   }
 
