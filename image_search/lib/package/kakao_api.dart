@@ -11,7 +11,7 @@ class KakaoAPI {
   int page = 0;
   bool isReachedEnd = false;
 
-  static const pageLimit = 35;
+  static const pageLimit = 3;
 }
 
 class KakaoWebAPI extends KakaoAPI {

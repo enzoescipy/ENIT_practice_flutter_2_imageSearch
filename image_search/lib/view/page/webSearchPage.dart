@@ -15,18 +15,8 @@ class WebSearchPage extends StatefulWidget {
 }
 
 class _WebSearchPageState extends State<WebSearchPage> {
-  // final List<WebVO> _contentVOList = [
-  //   getDebugVO(false,isLiked:true),
-  //   getDebugVO(false,isLiked:true),
-  //   getDebugVO(false),
-  //   getDebugVO(false),
-  //   getDebugVO(false),
-  //   getDebugVO(false),
-  //   getDebugVO(false),
-  //   getDebugVO(false)
-  // ];
-
   final List<WebVO> _contentVOList = [];
+  final List<Widget> _contentWidgetList = [];
   GetVoFromKakao? _kakaoInstance;
   String? _currentKeyword;
   bool _isListViewShouldReLoad = false;
@@ -69,23 +59,22 @@ class _WebSearchPageState extends State<WebSearchPage> {
                 );
               case ConnectionState.active:
                 final appendListVO = (snapshot.data ?? []) as List<WebVO>;
-                final showableListVO = _contentVOList + appendListVO;
-                final contentWidgetList = showableListVO.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
+                final contentWidgetList = _contentWidgetList + appendListVO.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
                 return Expanded(
                   child: ListView(
-                    children: contentWidgetList,
                     controller: _listViewScrollController,
+                    children: contentWidgetList,
                   ),
                 );
               case ConnectionState.done:
                 debugConsole((snapshot.data ?? []));
                 final appendListVO = (snapshot.data ?? []) as List<WebVO>;
                 _contentVOList.addAll(appendListVO);
-                final contentWidgetList = _contentVOList.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
+                _contentWidgetList.addAll(appendListVO.map((vo) => Component.webVOtoListViewItem(vo, context)).toList());
                 return Expanded(
                   child: ListView(
-                    children: contentWidgetList,
                     controller: _listViewScrollController,
+                    children: _contentWidgetList,
                   ),
                 );
             }
@@ -105,13 +94,12 @@ class _WebSearchPageState extends State<WebSearchPage> {
         future: _kakaoInstance!.searchNext(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.none || snapshot.connectionState == ConnectionState.waiting) {
-            final contentWidgetList = _contentVOList.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
             return Column(
               children: [
                 Flexible(
                   child: ListView(
                     controller: _listViewScrollController,
-                    children: contentWidgetList,
+                    children: _contentWidgetList,
                   ),
                 ),
                 Component.loadingWidgetItem()
@@ -120,14 +108,12 @@ class _WebSearchPageState extends State<WebSearchPage> {
           } else {
             if (snapshot.data == null) {
               // kakaoInstance reached its maximum page : just build view from the _contentVOList.
-              final contentWidgetList = _contentVOList.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
               return ListView(
-                children: contentWidgetList,
+                children: _contentWidgetList,
               );
             } else if (snapshot.connectionState == ConnectionState.active) {
               final appendListVO = (snapshot.data ?? []) as List<WebVO>;
-              final showableListVO = _contentVOList + appendListVO;
-              final contentWidgetList = showableListVO.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
+              final contentWidgetList = _contentWidgetList + appendListVO.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
               final resultListView = ListView(
                 controller: _listViewScrollController,
                 children: contentWidgetList,
@@ -137,10 +123,10 @@ class _WebSearchPageState extends State<WebSearchPage> {
               // case snapshot.connectionState == ConnectionState.done
               final appendListVO = (snapshot.data ?? []) as List<WebVO>;
               _contentVOList.addAll(appendListVO);
-              final contentWidgetList = _contentVOList.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
+              _contentWidgetList.addAll(appendListVO.map((vo) => Component.webVOtoListViewItem(vo, context)).toList());
               final resultListView = ListView(
                 controller: _listViewScrollController,
-                children: contentWidgetList,
+                children: _contentWidgetList,
               );
               return resultListView;
             }
@@ -149,11 +135,10 @@ class _WebSearchPageState extends State<WebSearchPage> {
       ));
     } else {
       // kakaoInstance exists : just build view from the _contentVOList.
-      final contentWidgetList = _contentVOList.map((vo) => Component.webVOtoListViewItem(vo, context)).toList();
       return Expanded(
           child: ListView(
         controller: _listViewScrollController,
-        children: contentWidgetList,
+        children: _contentWidgetList,
       ));
     }
   }
@@ -221,6 +206,7 @@ class _WebSearchPageState extends State<WebSearchPage> {
       _currentKeyword = _searchTextController.text;
       _kakaoInstance = null;
       _contentVOList.clear();
+      _contentWidgetList.clear();
     });
   }
 

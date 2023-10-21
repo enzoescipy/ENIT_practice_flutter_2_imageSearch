@@ -17,6 +17,7 @@ class ImageSearchPage extends StatefulWidget {
 
 class _ImageSearchPageState extends State<ImageSearchPage> {
   final List<ImageVO> _contentVOList = [];
+  final List<Widget> _contentWidgetList = [];
   GetVoFromKakao? _kakaoInstance;
   String? _currentKeyword;
   bool _isListViewShouldReLoad = false;
@@ -59,22 +60,21 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                 );
               case ConnectionState.active:
                 final appendListVO = (snapshot.data ?? []) as List<ImageVO>;
-                final showableListVO = _contentVOList + appendListVO;
-                final contentWidgetList = showableListVO.map((vo) => Component.imageVOtoListViewItem(vo, context)).toList();
+                final contentWidgetList = _contentWidgetList + appendListVO.map((vo) => Component.imageVOtoListViewItem(vo, context)).toList();
                 return Expanded(
                   child: ListView(
-                    children: contentWidgetList,
                     controller: _listViewScrollController,
+                    children: contentWidgetList,
                   ),
                 );
               case ConnectionState.done:
                 final appendListVO = (snapshot.data ?? []) as List<ImageVO>;
                 _contentVOList.addAll(appendListVO);
-                final contentWidgetList = _contentVOList.map((vo) => Component.imageVOtoListViewItem(vo, context)).toList();
+                _contentWidgetList.addAll(appendListVO.map((vo) => Component.imageVOtoListViewItem(vo, context)).toList());
                 return Expanded(
                   child: ListView(
-                    children: contentWidgetList,
                     controller: _listViewScrollController,
+                    children: _contentWidgetList,
                   ),
                 );
             }
@@ -94,13 +94,12 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
         future: _kakaoInstance!.searchNext(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.none || snapshot.connectionState == ConnectionState.waiting) {
-            final contentWidgetList = _contentVOList.map((vo) => Component.imageVOtoListViewItem(vo, context)).toList();
             return Column(
               children: [
                 Flexible(
                   child: ListView(
                     controller: _listViewScrollController,
-                    children: contentWidgetList,
+                    children: _contentWidgetList,
                   ),
                 ),
                 Component.loadingWidgetItem()
@@ -109,14 +108,12 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
           } else {
             if (snapshot.data == null) {
               // kakaoInstance reached its maximum page : just build view from the _contentVOList.
-              final contentWidgetList = _contentVOList.map((vo) => Component.imageVOtoListViewItem(vo, context)).toList();
               return ListView(
-                children: contentWidgetList,
+                children: _contentWidgetList,
               );
             } else if (snapshot.connectionState == ConnectionState.active) {
               final appendListVO = (snapshot.data ?? []) as List<ImageVO>;
-              final showableListVO = _contentVOList + appendListVO;
-              final contentWidgetList = showableListVO.map((vo) => Component.imageVOtoListViewItem(vo, context)).toList();
+              final contentWidgetList = _contentWidgetList + appendListVO.map((vo) => Component.imageVOtoListViewItem(vo, context)).toList();
               final resultListView = ListView(
                 controller: _listViewScrollController,
                 children: contentWidgetList,
@@ -126,10 +123,10 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
               // case snapshot.connectionState == ConnectionState.done
               final appendListVO = (snapshot.data ?? []) as List<ImageVO>;
               _contentVOList.addAll(appendListVO);
-              final contentWidgetList = _contentVOList.map((vo) => Component.imageVOtoListViewItem(vo, context)).toList();
+              _contentWidgetList.addAll(appendListVO.map((vo) => Component.imageVOtoListViewItem(vo, context)).toList());
               final resultListView = ListView(
                 controller: _listViewScrollController,
-                children: contentWidgetList,
+                children: _contentWidgetList,
               );
               return resultListView;
             }
@@ -138,11 +135,10 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
       ));
     } else {
       // kakaoInstance exists : just build view from the _contentVOList.
-      final contentWidgetList = _contentVOList.map((vo) => Component.imageVOtoListViewItem(vo, context)).toList();
       return Expanded(
           child: ListView(
         controller: _listViewScrollController,
-        children: contentWidgetList,
+        children: _contentWidgetList,
       ));
     }
   }
@@ -210,6 +206,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
       _currentKeyword = _searchTextController.text;
       _kakaoInstance = null;
       _contentVOList.clear();
+      _contentWidgetList.clear();
     });
   }
 
@@ -287,9 +284,16 @@ class ImageDetail extends StatelessWidget {
   }
 
   Widget image(BuildContext context, String url) {
-    final img = Padding(
+    final img = Container(
       padding: const EdgeInsets.all(8.0),
-      child: ClipRRect(borderRadius: BorderRadius.circular(8.0), child: Image.network(url)),
+      height: MediaQuery.of(context).size.height * 0.6,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8.0), 
+        child: Image.network(
+          url,
+          fit: BoxFit.cover,
+          )
+        ),
     );
     return GestureDetector(
       child: img,

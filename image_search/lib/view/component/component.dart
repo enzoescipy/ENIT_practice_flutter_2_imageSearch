@@ -79,9 +79,16 @@ Widget webVOtoListViewItem(WebVO vo, BuildContext context) {
 }
 
 Widget imageVOtoListViewItem(ImageVO vo, BuildContext context) {
-  final img = Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: ClipRRect(borderRadius: BorderRadius.circular(8.0), child: Image.network(vo.thumbnailURL)),
+  final img = Container(
+    margin: const EdgeInsets.all(10),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(30), 
+      child: Image.network(
+        vo.thumbnailURL,
+        width: 150,
+        height: 150,
+        fit: BoxFit.cover
+      )),
   );
 
   final itemDescription = Padding(
