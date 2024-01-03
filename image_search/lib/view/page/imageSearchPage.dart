@@ -246,6 +246,12 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
   }
 }
 
+
+
+
+
+
+
 class ImageDetailArguments {
   final ImageVO imageVO;
   ImageDetailArguments(this.imageVO);
